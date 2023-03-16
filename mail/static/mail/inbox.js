@@ -9,6 +9,7 @@ const refs = {
   compose_subject: document.querySelector('#compose-subject'),
   compose_body: document.querySelector('#compose-body'),
   table_markup: document.querySelector('.table-body'),
+  mail_form: document.querySelector('#mail-form'),
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
   refs.sent.addEventListener('click', () => load_mailbox('sent'));
   refs.archived.addEventListener('click', () => load_mailbox('archive'));
   refs.compose.addEventListener('click', compose_email);
+  refs.mail_form.addEventListener('submit', send_email);
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -69,4 +71,22 @@ function create_markup(emails) {
   return markup.join('');
 }
 
-async function send_email() {}
+async function send_email(event) {
+  event.preventDefault();
+  try {
+    const {
+      elements: { username, password }
+    } = event.currentTarget;
+    const response = await fetch('/emails', {
+      method: 'POST',
+      body: JSON.stringify({
+        recipients: refs.recipients,
+        subject: refs.subject,
+        body: refs.body,
+      }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
