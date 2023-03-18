@@ -8,8 +8,8 @@ const refs = {
   compose_recipients: document.querySelector('#compose-recipients'),
   compose_subject: document.querySelector('#compose-subject'),
   compose_body: document.querySelector('#compose-body'),
-  table_markup: document.querySelector('.table-body'),
-  mail_form: document.querySelector('#mail-form'),
+  table_markup: document.querySelector('#table-body'),
+  compose_form: document.querySelector('#compose-form'),
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
   refs.sent.addEventListener('click', () => load_mailbox('sent'));
   refs.archived.addEventListener('click', () => load_mailbox('archive'));
   refs.compose.addEventListener('click', compose_email);
-  refs.mail_form.addEventListener('submit', send_email);
+  refs.compose_form.addEventListener('submit', send_email);
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -74,18 +74,20 @@ function create_markup(emails) {
 async function send_email(event) {
   event.preventDefault();
   try {
-    const {
-      elements: { username, password }
-    } = event.currentTarget;
+    const sendingData = {};
+    const formData = new FormData(refs.compose_form);
+    for (let [name, value] of formData) {
+      sendingData[name] = value;
+    }
+
     const response = await fetch('/emails', {
       method: 'POST',
-      body: JSON.stringify({
-        recipients: refs.recipients,
-        subject: refs.subject,
-        body: refs.body,
-      }),
+      body: JSON.stringify(sendingData),
     });
-    return await response.json();
+    const result = await response.json();
+    alert('Email sent successfully.');
+    compose_email();
+    return result;
   } catch (error) {
     console.log(error);
   }
