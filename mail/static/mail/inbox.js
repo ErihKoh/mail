@@ -8,7 +8,7 @@ const refs = {
   compose_recipients: document.querySelector('#compose-recipients'),
   compose_subject: document.querySelector('#compose-subject'),
   compose_body: document.querySelector('#compose-body'),
-  table_markup: document.querySelector('#table-body'),
+  table_markup: document.querySelector('#emails-list'),
   compose_form: document.querySelector('#compose-form'),
 };
 
@@ -49,6 +49,7 @@ async function load_mailbox(mailbox) {
   const name_folder = `<h3 class="mb-5">${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   refs.table_markup.innerHTML = name_folder + markup;
+  create_btn_delete();
 }
 
 // ===============================================================================
@@ -64,11 +65,26 @@ async function fetch_inbox_mails(mailbox) {
 }
 
 function create_markup(emails) {
-  const markup = emails.map((el) => {
-    const result = `<tr><td>${el.sender}</td><td>${el.subject}</td><td>${el.timestamp}</td></tr>`;
-    return result;
-  });
-  return markup.join('');
+  try {
+    const markup = emails.map((el) => {
+      const result = `<li class='clickable-row container align-items-center'>
+        <div class='row'>
+        <a href='emails/${el.id}' class='col d-flex flex-row justify-content-between text'>
+        <p>${el.sender}</p>
+        <p>${el.subject}</p>
+        <p>${el.timestamp}</p>
+          </a>
+        <div class='col-md-auto'><button type='button' class="btn btn-warning">edit</button></div>
+        <div class='col col-lg-2'><button data-id=${el.id} type='button' class="btn btn-danger btn-del">delete</button></div>
+      </div>
+        </li>`;
+
+      return result;
+    });
+    return markup.join('');
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function send_email(event) {
@@ -91,4 +107,16 @@ async function send_email(event) {
   } catch (error) {
     console.log(error);
   }
+}
+
+function create_btn_delete() {
+  return document.querySelectorAll('.btn-del').forEach((btn) => {
+    btn.addEventListener('click', async (evt) => {
+      await fetch(`/emails/${btn.dataset.id}`, {
+        method: 'DELETE',
+      });
+      location.reload(true);
+      alert(`Message has deleted`);
+    });
+  });
 }

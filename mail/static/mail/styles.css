@@ -1,3 +1,30 @@
 textarea {
-    min-height: 400px;
+  min-height: 400px;
+}
+
+ul {
+  padding: 0;
+}
+
+li {
+  list-style: none;
+  box-sizing: content-box;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+a.text:active, /* активная/посещенная ссылка */
+a.text:hover,  /* при наведении */
+a.text {
+  text-decoration: none;
+  color: #666;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover,
+.clickable-row:focus {
+  background-color: #eee;
 }
