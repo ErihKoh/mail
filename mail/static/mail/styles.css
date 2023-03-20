@@ -8,9 +8,10 @@ ul {
 
 li {
   list-style: none;
-  box-sizing: content-box;
-  margin-bottom: 10px;
-  padding: 10px;
+}
+
+a {
+  display: block;
 }
 
 a.text:active, /* активная/посещенная ссылка */
@@ -20,11 +21,40 @@ a.text {
   color: #666;
 }
 
+.btn-appr {
+  opacity: 0;
+  margin-bottom: 10px;
+}
+
 .clickable-row {
+  margin-bottom: 10px;
+  padding: 5px;
+  padding-top: 15px;
+  width: 90%;
   cursor: pointer;
+  border: 1px dashed black;
 }
 
 .clickable-row:hover,
 .clickable-row:focus {
-  background-color: #eee;
+  border: 1px solid black;
+}
+
+.clickable-row:hover .btn-appr {
+  opacity: 1;
+}
+
+.row-bgc {
+  background-color: #d8d8d8;
+}
+
+.btn-left {
+  background-color: inherit;
+  border: none;
+  height: 100%;
+}
+
+.btn-left:focus {
+  border: none;
+  outline: none !important;
 }
