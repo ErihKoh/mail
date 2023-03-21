@@ -123,7 +123,7 @@ def email(request, email_id):
     elif request.method == "DELETE":
         email.delete()
         
-        return HttpResponse(status=204)
+        return JsonResponse({"message": "Email deleted successfully."}, status=204)
 
     # Email must be via GET or PUT or DELETE
     else:
