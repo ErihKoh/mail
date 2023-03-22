@@ -24,12 +24,10 @@ document.addEventListener('DOMContentLoaded', function () {
   refs.compose.addEventListener('click', compose_email);
   refs.compose_form.addEventListener('submit', send_email);
   refs.emails_list.addEventListener('click', (evt) => {
-    let item = evt.target.closest('li') && evt.target.tagName != 'BUTTON';
-    if (item) {
-      return console.log('this is li');
+    let item = evt.target.closest('li');
+    if ((item && evt.target.tagName === 'DIV') || evt.target.tagName === 'P') {
+      open_email(item.dataset.id);
     }
-
-    return console.log('this is button');
   });
 
   // By default, load the inbox
@@ -83,13 +81,13 @@ function create_markup(emails) {
     const markup = emails.map(
       (
         el,
-      ) => `<li class='clickable-row container' data-read=${el.read} data-archived=${el.archived}>
+      ) => `<li class='clickable-row container' data-id=${el.id} data-read=${el.read} data-archived=${el.archived}>
         <div class='row'>
-        <div class='col-8 d-flex flex-row justify-content-between text'>
+        <a class='col-8 d-flex flex-row justify-content-between text' href='/emails/${el.id}'>
         <p>${el.sender}</p>
         <p>${el.subject}</p>
         <p>${el.timestamp}</p>
-          </div>
+          </a>
         <div class='col-4 d-flex flex-row justify-content-around btn-appr' data-read=${el.read} data-archived=${el.archived} data-id=${el.id}></div> 
       </div>
         </li>`,
@@ -203,4 +201,11 @@ function add_class_for_unread_email() {
   );
 }
 
-function open_email() {}
+async function open_email(id) {
+  try {
+    const response = await fetch(`/emails/${id}`);
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
