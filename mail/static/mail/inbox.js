@@ -12,7 +12,7 @@ const refs = {
   compose_recipients: document.querySelector('#compose-recipients'),
   compose_subject: document.querySelector('#compose-subject'),
   compose_body: document.querySelector('#compose-body'),
-  table_markup: document.querySelector('#emails-list'),
+  emails_list: document.querySelector('#emails-list'),
   compose_form: document.querySelector('#compose-form'),
 };
 
@@ -23,6 +23,14 @@ document.addEventListener('DOMContentLoaded', function () {
   refs.archived.addEventListener('click', () => load_mailbox('archive'));
   refs.compose.addEventListener('click', compose_email);
   refs.compose_form.addEventListener('submit', send_email);
+  refs.emails_list.addEventListener('click', (evt) => {
+    let item = evt.target.closest('li') && evt.target.tagName != 'BUTTON';
+    if (item) {
+      return console.log('this is li');
+    }
+
+    return console.log('this is button');
+  });
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -52,7 +60,7 @@ async function load_mailbox(mailbox) {
   const markup = await create_markup(response);
   const name_folder = `<h3 class="mb-5">${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  refs.table_markup.innerHTML = name_folder + markup;
+  refs.emails_list.innerHTML = name_folder + markup;
   add_class_for_unread_email();
   create_block_btn('.btn-appr');
   create_btn_delete();
