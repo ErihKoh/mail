@@ -1,6 +1,4 @@
-{
-  /* <div class='col col-lg-2'><button data-id=${el.id} type='button' class="btn btn-danger btn-del">delete</button></div> */
-}
+
 
 const refs = {
   inbox: document.querySelector('#inbox'),
