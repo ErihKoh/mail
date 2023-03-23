@@ -29,7 +29,7 @@
   </form>
 </div>
 
-<div id="email-view"></div>
+<div id="email-view" data-user={{ request.user.email }}></div>
 {% endblock %} {% block script %}
 <script src="{% static 'mail/inbox.js' %}"></script>
 {% endblock %}

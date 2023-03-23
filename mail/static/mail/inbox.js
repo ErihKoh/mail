@@ -45,6 +45,8 @@ function compose_email() {
   refs.compose_recipients.value = '';
   refs.compose_subject.value = '';
   refs.compose_body.value = '';
+
+  localStorage.removeItem('for_reply');
 }
 
 async function email_load(id) {
@@ -53,8 +55,16 @@ async function email_load(id) {
   refs.email_view.style.display = 'block';
 
   const response = await fetch_email(id);
-  const markup = await create_markup_email(response);
+  const markup = create_markup_email(response);
   refs.email_view.innerHTML = markup;
+
+  const reply_btn = document.querySelector('#reply');
+
+  if (response.sender === refs.email_view.dataset.user) {
+    reply_btn.remove();
+  }
+
+  localStorage.setItem('for_reply', JSON.stringify(response));
 }
 
 async function load_mailbox(mailbox) {
@@ -75,6 +85,7 @@ async function load_mailbox(mailbox) {
   add_class_for_unread_email();
   create_block_btn('.btn-appr');
   create_btn_delete();
+  localStorage.removeItem('for_reply');
 }
 
 // ===============================================================================
@@ -112,7 +123,6 @@ async function send_email(event) {
       body: JSON.stringify(sendingData),
     });
     const result = await response.json();
-    alert('Email sent successfully.');
     load_mailbox('sent');
     return result;
   } catch (error) {
@@ -140,7 +150,7 @@ function create_markup_mailbox(emails) {
 
 function create_btn_delete() {
   return document.querySelectorAll('.btn-del').forEach((btn) => {
-    btn.addEventListener('click', async (evt) => {
+    btn.addEventListener('click', async () => {
       await fetch(`/emails/${btn.dataset.id}`, {
         method: 'DELETE',
       });
@@ -221,15 +231,13 @@ function add_class_for_unread_email() {
 function create_markup_email(email) {
   return `<div>
           <p><b>From: </b>${email.sender}</p>
-          <p><b>To: </b>${email.id}</p>
+          <p><b>To: </b>${email.recipients}</p>
           <p><b>Subject: </b>${email.subject}</p>
           <p><b>To: </b>${email.timestamp}</p>
-          <button class="btn btn-sm btn-outline-primary" id="inbox">Reply</button>
+          <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
           <hr/>
           <p>${email.body}</p>
         </div>`;
 }
 
-function reply() {
-  
-}
+function reply() {}
