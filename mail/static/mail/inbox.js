@@ -7,8 +7,9 @@ const refs = {
   sent: document.querySelector('#sent'),
   archived: document.querySelector('#archived'),
   compose: document.querySelector('#compose'),
-  email_view: document.querySelector('#emails-view'),
+  emails_view: document.querySelector('#emails-view'),
   compose_view: document.querySelector('#compose-view'),
+  email_view: document.querySelector('#email-view'),
   compose_recipients: document.querySelector('#compose-recipients'),
   compose_subject: document.querySelector('#compose-subject'),
   compose_body: document.querySelector('#compose-body'),
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
   refs.emails_list.addEventListener('click', (evt) => {
     let item = evt.target.closest('li');
     if ((item && evt.target.tagName === 'DIV') || evt.target.tagName === 'P') {
-      open_email(item.dataset.id);
+      email_load(item.dataset.id);
     }
   });
 
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function compose_email() {
   // Show compose view and hide other views
+  refs.emails_view.style.display = 'none';
   refs.email_view.style.display = 'none';
   refs.compose_view.style.display = 'block';
 
@@ -45,17 +47,28 @@ function compose_email() {
   refs.compose_body.value = '';
 }
 
+async function email_load(id) {
+  refs.emails_view.style.display = 'none';
+  refs.compose_view.style.display = 'none';
+  refs.email_view.style.display = 'block';
+
+  const response = await fetch_email(id);
+  const markup = await create_markup_email(response);
+  refs.email_view.innerHTML = markup;
+}
+
 async function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
-  refs.email_view.style.display = 'block';
+  refs.emails_view.style.display = 'block';
   refs.compose_view.style.display = 'none';
+  refs.email_view.style.display = 'none';
 
   // Show the mailbox name
 
   // ======================== my code=========
 
   const response = await fetch_inbox_mails(mailbox);
-  const markup = await create_markup(response);
+  const markup = await create_markup_mailbox(response);
   const name_folder = `<h3 class="mb-5">${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   refs.emails_list.innerHTML = name_folder + markup;
@@ -76,23 +89,10 @@ async function fetch_inbox_mails(mailbox) {
   }
 }
 
-function create_markup(emails) {
+async function fetch_email(id) {
   try {
-    const markup = emails.map(
-      (
-        el,
-      ) => `<li class='clickable-row container' data-id=${el.id} data-read=${el.read} data-archived=${el.archived}>
-        <div class='row'>
-        <a class='col-8 d-flex flex-row justify-content-between text' href='/emails/${el.id}'>
-        <p>${el.sender}</p>
-        <p>${el.subject}</p>
-        <p>${el.timestamp}</p>
-          </a>
-        <div class='col-4 d-flex flex-row justify-content-around btn-appr' data-read=${el.read} data-archived=${el.archived} data-id=${el.id}></div> 
-      </div>
-        </li>`,
-    );
-    return markup.join('');
+    const response = await fetch(`/emails/${id}`);
+    return await response.json();
   } catch (error) {
     console.log(error);
   }
@@ -113,11 +113,29 @@ async function send_email(event) {
     });
     const result = await response.json();
     alert('Email sent successfully.');
-    compose_email();
+    load_mailbox('sent');
     return result;
   } catch (error) {
     console.log(error);
   }
+}
+
+function create_markup_mailbox(emails) {
+  const markup = emails.map(
+    (
+      el,
+    ) => `<li class='clickable-row container' data-id=${el.id} data-read=${el.read} data-archived=${el.archived}>
+        <div class='row'>
+        <div class='col-8 d-flex flex-row justify-content-between text'>
+        <p>${el.sender}</p>
+        <p>${el.subject}</p>
+        <p>${el.timestamp}</p>
+          </div>
+        <div class='col-4 d-flex flex-row justify-content-around btn-appr' data-read=${el.read} data-archived=${el.archived} data-id=${el.id}></div> 
+      </div>
+        </li>`,
+  );
+  return markup.join('');
 }
 
 function create_btn_delete() {
@@ -127,7 +145,6 @@ function create_btn_delete() {
         method: 'DELETE',
       });
       location.reload(true);
-      alert(`Message has deleted`);
     });
   });
 }
@@ -201,11 +218,18 @@ function add_class_for_unread_email() {
   );
 }
 
-async function open_email(id) {
-  try {
-    const response = await fetch(`/emails/${id}`);
-    return await response.json();
-  } catch (error) {
-    console.log(error);
-  }
+function create_markup_email(email) {
+  return `<div>
+          <p><b>From: </b>${email.sender}</p>
+          <p><b>To: </b>${email.id}</p>
+          <p><b>Subject: </b>${email.subject}</p>
+          <p><b>To: </b>${email.timestamp}</p>
+          <button class="btn btn-sm btn-outline-primary" id="inbox">Reply</button>
+          <hr/>
+          <p>${email.body}</p>
+        </div>`;
+}
+
+function reply() {
+  
 }
