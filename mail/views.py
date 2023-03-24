@@ -119,8 +119,13 @@ def email(request, email_id):
             email.archived = data["archived"]
         email.save()
         return HttpResponse(status=204)
+    
+    elif request.method == "DELETE":
+        email.delete()
+        
+        return JsonResponse({"message": "Email deleted successfully."}, status=204)
 
-    # Email must be via GET or PUT
+    # Email must be via GET or PUT or DELETE
     else:
         return JsonResponse({
             "error": "GET or PUT request required."
